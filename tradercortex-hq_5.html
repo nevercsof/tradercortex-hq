@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TraderCortex HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#07070c; --ink2:#0e0e17; --ink3:#14141f; --ink4:#1c1c2a; --ink5:#252538;
+  --line:rgba(255,255,255,0.05); --line2:rgba(255,255,255,0.09); --line3:rgba(255,255,255,0.16);
+  --t1:#eeeeff; --t2:#8484a8; --t3:#3e3e5e;
+  --violet:#8b5cf6; --vsoft:rgba(139,92,246,0.1); --vglow:rgba(139,92,246,0.22);
+  --cyan:#06d6d6; --csoft:rgba(6,214,214,0.08); --cglow:rgba(6,214,214,0.18);
+  --green:#10f08c; --gsoft:rgba(16,240,140,0.08); --gglow:rgba(16,240,140,0.18);
+  --amber:#f5a623; --asoft:rgba(245,166,35,0.08); --aglow:rgba(245,166,35,0.18);
+  --rose:#ff4d6d; --rsoft:rgba(255,77,109,0.08); --rglow:rgba(255,77,109,0.18);
+  --blue:#4da6ff; --bsoft:rgba(77,166,255,0.08); --bglow:rgba(77,166,255,0.18);
+  --mono:'JetBrains Mono',monospace; --sans:'Manrope',system-ui,sans-serif;
+  --sw:232px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--ink);color:var(--t1);font-family:var(--sans);font-size:13px;display:flex;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 55% 45% at 12% 18%,rgba(139,92,246,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 45% 35% at 88% 82%,rgba(6,214,214,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 35% 28% at 55% 55%,rgba(16,240,140,.025) 0%,transparent 55%)}
+
+/* SIDEBAR */
+.sb{width:var(--sw);min-width:var(--sw);height:100vh;background:rgba(14,14,23,.95);backdrop-filter:blur(24px);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;z-index:10;position:relative}
+.sb::-webkit-scrollbar{width:0}
+.logo{padding:20px 16px 16px;border-bottom:1px solid var(--line)}
+.logo-chip{display:inline-flex;align-items:center;gap:5px;background:var(--vsoft);border:1px solid rgba(139,92,246,.18);border-radius:5px;padding:2px 8px;margin-bottom:7px}
+.logo-dot{width:5px;height:5px;border-radius:50%;background:var(--violet);box-shadow:0 0 7px var(--violet);animation:blink 2.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 7px var(--violet)}50%{opacity:.5;box-shadow:0 0 14px var(--violet)}}
+.logo-chip span{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);font-family:var(--mono)}
+.logo-name{font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--t1)}
+.logo-sub{font-size:9.5px;color:var(--t3);font-family:var(--mono);margin-top:2px;letter-spacing:.04em}
+.nav-g{padding:10px 10px 4px}
+.nav-gl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);padding:0 8px;margin-bottom:4px;font-family:var(--mono)}
+.nav-i{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--t2);font-size:12.5px;font-weight:500;transition:all .13s;position:relative;margin-bottom:2px;user-select:none}
+.nav-i:hover{background:var(--ink3);color:var(--t1)}
+.nav-i.on{background:var(--vsoft);color:var(--t1);border:1px solid rgba(139,92,246,.14)}
+.nav-i.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:16px;background:var(--violet);border-radius:0 2px 2px 0;box-shadow:0 0 9px var(--violet)}
+.nav-ico{width:27px;height:27px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--ink4);flex-shrink:0}
+.nav-i.on .nav-ico{background:var(--vsoft)}
+.nav-txt{flex:1}
+.nav-n{font-size:9.5px;font-family:var(--mono);font-weight:600;padding:1px 6px;border-radius:8px;background:var(--ink4);color:var(--t3)}
+.nav-i.on .nav-n{background:var(--vsoft);color:var(--violet)}
+.nav-n.hot{background:var(--rsoft);color:var(--rose)}
+.sb-foot{margin-top:auto;padding:12px 14px;border-top:1px solid var(--line)}
+.conn{display:flex;align-items:center;gap:6px;font-size:9.5px;font-family:var(--mono);color:var(--t3)}
+.conn-d{width:6px;height:6px;border-radius:50%;background:var(--t3);transition:all .3s}
+.conn-d.live{background:var(--green);box-shadow:0 0 8px var(--green)}
+.conn-d.err{background:var(--rose)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;position:relative;z-index:1}
+.topbar{height:52px;display:flex;align-items:center;padding:0 22px;gap:12px;border-bottom:1px solid var(--line);background:rgba(7,7,12,.65);backdrop-filter:blur(20px);flex-shrink:0}
+.bc{display:flex;align-items:center;gap:6px}
+.bc-home{font-size:11.5px;color:var(--t3);cursor:pointer;transition:color .15s;font-weight:500}
+.bc-home:hover{color:var(--t2)}
+.bc-sep{color:var(--t3);font-size:11px}
+.bc-cur{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-in{background:var(--ink3);border:1px solid var(--line2);border-radius:9px;padding:6px 12px 6px 32px;color:var(--t1);font-family:var(--sans);font-size:11.5px;outline:none;width:190px;transition:all .2s;font-weight:500}
+.search-in:focus{border-color:rgba(139,92,246,.4);box-shadow:0 0 0 3px var(--vsoft);width:250px}
+.search-in::placeholder{color:var(--t3)}
+.s-ico{position:absolute;left:10px;color:var(--t3);font-size:12px;pointer-events:none}
+.sdrop{position:absolute;top:calc(100% + 8px);left:0;right:0;min-width:320px;background:var(--ink2);border:1px solid var(--line2);border-radius:12px;overflow:hidden;display:none;z-index:100;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.sdrop.open{display:block}
+.sd-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);transition:background .1s}
+.sd-row:last-child{border:none}
+.sd-row:hover{background:var(--ink3)}
+.sd-pbar{width:3px;min-height:14px;border-radius:2px;flex-shrink:0}
+.sd-t{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:1px}
+.sd-m{font-size:9.5px;color:var(--t3);font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 15px;border-radius:8px;border:1px solid var(--line2);background:var(--ink3);color:var(--t2);cursor:pointer;transition:all .13s;white-space:nowrap}
+.btn:hover{background:var(--ink4);color:var(--t1);border-color:var(--line3)}
+.btn-v{background:var(--violet);border-color:var(--violet);color:#fff;box-shadow:0 0 20px var(--vglow)}
+.btn-v:hover{background:#9d7af7;border-color:#9d7af7;box-shadow:0 0 28px var(--vglow)}
+.content{flex:1;overflow-y:auto;padding:26px 26px 36px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+/* CARDS */
+.mgrid{display:grid;gap:12px;margin-bottom:24px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.mc{background:rgba(20,20,31,.75);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .15s}
+.mc:hover{border-color:var(--line2)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;opacity:.45;background:linear-gradient(90deg,transparent,var(--ac,var(--violet)),transparent)}
+.mc-l{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;font-family:var(--mono)}
+.mc-v{font-family:var(--mono);font-size:34px;font-weight:600;line-height:1;margin-bottom:6px;letter-spacing:-.025em}
+.mc-s{font-size:11.5px;color:var(--t3);line-height:1.55;font-weight:400}
+.mc-bar{height:2px;background:var(--ink5);border-radius:1px;margin:10px 0 6px;overflow:hidden}
+.mc-fill{height:100%;border-radius:1px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.mc-glow{position:absolute;bottom:-24px;right:-24px;width:90px;height:90px;border-radius:50%;opacity:.12;filter:blur(24px);pointer-events:none}
+
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:14px;margin-top:8px}
+.sh-l{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);font-family:var(--mono);white-space:nowrap}
+.sh-line{flex:1;height:1px;background:var(--line)}
+.sh-n{font-size:9.5px;font-family:var(--mono);color:var(--t3);font-weight:600}
+
+/* TASKS */
+.tlist{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
+.task{display:flex;align-items:flex-start;gap:11px;padding:14px 16px;border-radius:11px;border:1px solid var(--line);background:rgba(20,20,31,.45);cursor:pointer;transition:all .13s;position:relative}
+.task:hover{border-color:var(--line2);background:rgba(28,28,42,.65);transform:translateX(2px)}
+.task.tdone{opacity:.38}
+.task.tdone:hover{opacity:.6}
+.pbar{width:3px;min-height:18px;border-radius:2px;flex-shrink:0;align-self:stretch;margin-top:2px}
+.p-c{background:var(--rose);box-shadow:0 0 7px var(--rglow)}
+.p-h{background:var(--amber)}
+.p-m{background:var(--blue)}
+.p-l{background:var(--ink5)}
+.chk{width:17px;height:17px;border:1.5px solid var(--line3);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s;font-size:9px;font-weight:800}
+.chk.done{background:var(--green);border-color:var(--green);color:#000;box-shadow:0 0 8px var(--gglow)}
+.chk.partial{background:var(--amber);border-color:var(--amber);color:#000}
+.chk.wip{border-color:var(--cyan);color:var(--cyan)}
+.tb{flex:1;min-width:0}
+.tt{font-size:13px;font-weight:600;color:var(--t1);line-height:1.45;margin-bottom:5px}
+.tt.s{text-decoration:line-through;color:var(--t3)}
+.td{font-size:11.5px;color:var(--t3);line-height:1.55;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:9.5px;font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:5px;letter-spacing:.03em}
+.tg{background:var(--ink4);color:var(--t3)}
+.tv{background:var(--vsoft);color:var(--violet);border:1px solid rgba(139,92,246,.15)}
+.tg2{background:var(--gsoft);color:var(--green);border:1px solid rgba(16,240,140,.15)}
+.ta{background:var(--asoft);color:var(--amber);border:1px solid rgba(245,166,35,.15)}
+.tr{background:var(--rsoft);color:var(--rose);border:1px solid rgba(255,77,109,.15)}
+.tc{background:var(--csoft);color:var(--cyan);border:1px solid rgba(6,214,214,.15)}
+.tb2{background:var(--bsoft);color:var(--blue);border:1px solid rgba(77,166,255,.15)}
+
+/* PHASE ACCORDION */
+.pa{border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:9px;background:rgba(14,14,23,.55);transition:border-color .15s}
+.pa:hover{border-color:var(--line2)}
+.pa-h{display:flex;align-items:center;gap:12px;padding:15px 17px;cursor:pointer;transition:background .13s}
+.pa-h:hover{background:rgba(255,255,255,.02)}
+.pa-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pa-name{font-size:13.5px;font-weight:700;color:var(--t1);flex:1}
+.pa-per{font-size:10px;font-family:var(--mono);color:var(--t3)}
+.pa-pill{font-size:9px;font-family:var(--mono);font-weight:700;padding:3px 11px;border-radius:20px;letter-spacing:.05em}
+.pa-stat{font-size:10px;font-family:var(--mono)}
+.pa-ch{color:var(--t3);font-size:10px;transition:transform .25s cubic-bezier(.4,0,.2,1);flex-shrink:0}
+.pa-ch.o{transform:rotate(180deg)}
+.pa-body{display:none;padding:0 15px 14px;border-top:1px solid var(--line)}
+.pa-body.o{display:block}
+
+/* ROADMAP TIMELINE */
+.rm-wrap{position:relative;padding:8px 0 8px 0}
+.rm-timeline{display:flex;flex-direction:column;gap:0}
+.rm-phase{display:flex;gap:20px;margin-bottom:0;position:relative}
+.rm-phase:not(:last-child) .rm-spine{height:100%}
+.rm-left{display:flex;flex-direction:column;align-items:center;width:36px;flex-shrink:0}
+.rm-node{width:14px;height:14px;border-radius:50%;border:2px solid;flex-shrink:0;position:relative;z-index:2;margin-top:18px}
+.rm-node.active{box-shadow:0 0 0 4px var(--vglow);animation:nodepulse 2s ease-in-out infinite}
+@keyframes nodepulse{0%,100%{box-shadow:0 0 0 4px var(--vglow)}50%{box-shadow:0 0 0 8px rgba(139,92,246,.1)}}
+.rm-spine{width:2px;flex:1;background:var(--line);margin-top:4px;margin-bottom:0;min-height:40px}
+.rm-right{flex:1;padding-bottom:32px}
+.rm-card{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:rgba(14,14,23,.55);transition:border-color .2s;margin-top:8px}
+.rm-card:hover{border-color:var(--line2)}
+.rm-card-h{display:flex;align-items:center;gap:12px;padding:14px 17px;cursor:pointer}
+.rm-card-h:hover{background:rgba(255,255,255,.015)}
+.rm-ph-name{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.rm-ph-per{font-size:9.5px;font-family:var(--mono);color:var(--t3)}
+.rm-pill{font-size:8.5px;font-family:var(--mono);font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.06em}
+.rm-prog{font-size:9.5px;font-family:var(--mono);font-weight:600}
+.rm-body{display:none;padding:0 14px 12px;border-top:1px solid var(--line)}
+.rm-body.o{display:block}
+.rm-ch{color:var(--t3);font-size:10px;transition:transform .25s;flex-shrink:0}
+.rm-ch.o{transform:rotate(180deg)}
+.rm-bar-wrap{height:3px;background:var(--ink5);border-radius:2px;margin:0 17px 0;overflow:hidden}
+.rm-bar-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* AGENTS */
+.ag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.ag-card{background:rgba(20,20,31,.75);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:border-color .15s}
+.ag-card:hover{border-color:var(--line2)}
+.ag-glow{position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;opacity:.1;filter:blur(30px);pointer-events:none}
+.ag-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ag-av{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ag-name{font-size:13px;font-weight:700;color:var(--t1);line-height:1.2;margin-bottom:2px}
+.ag-role{font-size:10px;color:var(--t3);font-weight:500}
+.ag-status{font-size:8.5px;font-family:var(--mono);font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;letter-spacing:.07em;margin-bottom:10px}
+.ag-miss{font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.ag-rules{display:flex;flex-direction:column;gap:7px}
+.ag-rule{font-size:10.5px;color:var(--t3);line-height:1.5;display:flex;gap:7px}
+.rl{font-family:var(--mono);font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px}
+.rl-ok{color:var(--green)}
+.rl-no{color:var(--rose)}
+
+/* FILTERS */
+.fbar{display:flex;gap:6px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.fchip{font-size:10px;font-family:var(--mono);font-weight:600;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--t3);cursor:pointer;transition:all .12s;letter-spacing:.04em}
+.fchip:hover{border-color:var(--line2);color:var(--t2)}
+.fchip.on{background:var(--vsoft);border-color:rgba(139,92,246,.3);color:var(--violet)}
+.fc{margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--t3);font-weight:600}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--ink2);border:1px solid var(--line2);border-radius:16px;padding:26px;width:490px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.65)}
+.modal-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:18px;letter-spacing:-.01em}
+.field{margin-bottom:13px}
+.fl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:5px;font-family:var(--mono)}
+.field input,.field select,.field textarea{width:100%;background:var(--ink3);border:1px solid var(--line2);border-radius:9px;padding:9px 12px;color:var(--t1);font-family:var(--sans);font-size:13px;font-weight:500;outline:none;transition:all .13s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(139,92,246,.5);box-shadow:0 0 0 3px var(--vsoft)}
+.field select option{background:var(--ink2)}
+.field textarea{resize:vertical;min-height:75px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+
+/* DIGEST BANNER */
+.digest-hint{background:var(--vsoft);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--violet);display:flex;align-items:center;gap:10px}
+.digest-hint strong{font-weight:700}
+
+/* SPRINT BANNER */
+.sprint-banner{background:linear-gradient(135deg,rgba(16,240,140,.07),rgba(139,92,246,.07));border:1px solid rgba(16,240,140,.15);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.sp-ico{font-size:20px;flex-shrink:0}
+.sp-title{font-size:12px;font-weight:700;color:var(--green);margin-bottom:3px}
+.sp-desc{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* PRIORITY LEGEND */
+.pleg{display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.pleg-item{display:flex;align-items:center;gap:6px;font-size:10.5px;font-family:var(--mono);color:var(--t3)}
+.pleg-dot{width:8px;height:8px;border-radius:50%}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--ink2);border:1px solid var(--line2);border-radius:10px;padding:10px 18px;font-size:12px;font-weight:600;color:var(--t1);z-index:300;transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);font-family:var(--mono);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.toast.show{transform:translateY(0);opacity:1}
+.spin-wrap{display:flex;align-items:center;justify-content:center;height:200px;gap:10px;color:var(--t3);font-family:var(--mono);font-size:11px}
+.spin{width:14px;height:14px;border:2px solid var(--ink5);border-top-color:var(--violet);border-radius:50%;animation:s .7s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:30px;color:var(--t3);font-family:var(--mono);font-size:11px}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="logo">
+    <div class="logo-chip"><div class="logo-dot"></div><span>Internal HQ</span></div>
+    <div class="logo-name">TraderCortex</div>
+    <div class="logo-sub">build dashboard · v2.2</div>
+  </div>
+  <div class="nav-g">
+    <div class="nav-gl">Обзор</div>
+    <div class="nav-i on" data-k="dashboard" onclick="go('dashboard')"><div class="nav-ico">⬡</div><span class="nav-txt">Dashboard</span></div>
+    <div class="nav-i" data-k="agents" onclick="go('agents')"><div class="nav-ico">◎</div><span class="nav-txt">Агенты</span></div>
+    <div class="nav-i" data-k="roadmap" onclick="go('roadmap')"><div class="nav-ico">◇</div><span class="nav-txt">Roadmap</span></div>
+  </div>
+  <div class="nav-g">
+    <div class="nav-gl">Задачи</div>
+    <div class="nav-i" data-k="tasks-backend" onclick="go('tasks','backend')"><div class="nav-ico">⚙</div><span class="nav-txt">Бэкенд</span><span class="nav-n" id="nb-backend">·</span></div>
+    <div class="nav-i" data-k="tasks-infra" onclick="go('tasks','infra')"><div class="nav-ico">▣</div><span class="nav-txt">Инфра</span><span class="nav-n" id="nb-infra">·</span></div>
+    <div class="nav-i" data-k="tasks-ux" onclick="go('tasks','ux')"><div class="nav-ico">✦</div><span class="nav-txt">UX / Дизайн</span><span class="nav-n" id="nb-ux">·</span></div>
+    <div class="nav-i" data-k="tasks-monetization" onclick="go('tasks','monetization')"><div class="nav-ico">◆</div><span class="nav-txt">Монетизация</span><span class="nav-n" id="nb-monetization">·</span></div>
+    <div class="nav-i" data-k="tasks-growth" onclick="go('tasks','growth')"><div class="nav-ico">△</div><span class="nav-txt">Рост</span><span class="nav-n" id="nb-growth">·</span></div>
+  </div>
+  <div class="nav-g">
+    <div class="nav-gl">QA</div>
+    <div class="nav-i" data-k="bugs" onclick="go('bugs')"><div class="nav-ico">▲</div><span class="nav-txt">Баги</span><span class="nav-n hot" id="nb-bugs">·</span></div>
+    <div class="nav-i" data-k="tasks-tests" onclick="go('tasks','tests')"><div class="nav-ico">◉</div><span class="nav-txt">Тесты</span><span class="nav-n" id="nb-tests">·</span></div>
+  </div>
+  <div class="sb-foot">
+    <div class="conn"><div class="conn-d" id="cdot"></div><span id="clbl">connecting...</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="bc">
+      <span class="bc-home" onclick="go('dashboard')">HQ</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-cur" id="ptitle">Dashboard</span>
+    </div>
+    <div class="tb-right">
+      <div class="search-wrap">
+        <span class="s-ico">⌕</span>
+        <input class="search-in" id="sinput" placeholder="⌘K · Поиск..." oninput="onSearch(this.value)" onblur="setTimeout(closeSearch,180)">
+        <div class="sdrop" id="sdrop"></div>
+      </div>
+      <button class="btn btn-v" onclick="openModal()">+ Задача</button>
+    </div>
+  </header>
+  <div class="content" id="content"><div class="spin-wrap"><div class="spin"></div>Загрузка...</div></div>
+</main>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Новая задача</div>
+    <div class="field"><div class="fl">Название</div><input id="f-t" placeholder="Что нужно сделать?"></div>
+    <div class="field"><div class="fl">Описание</div><textarea id="f-d" placeholder="Детали, acceptance criteria..."></textarea></div>
+    <div class="frow">
+      <div class="field"><div class="fl">Категория</div>
+        <select id="f-c"><option value="backend">Бэкенд</option><option value="infra">Инфра</option><option value="ux">UX / Дизайн</option><option value="monetization">Монетизация</option><option value="growth">Рост</option><option value="bugs">Баги</option><option value="tests">Тесты</option></select></div>
+      <div class="field"><div class="fl">Приоритет</div>
+        <select id="f-p"><option value="critical">🔴 Критично</option><option value="high">🟠 Высокий</option><option value="medium" selected>🟡 Средний</option><option value="low">⚪ Низкий</option></select></div>
+    </div>
+    <div class="field"><div class="fl">Фаза</div>
+      <select id="f-ph"><option value="post-mvp">Post-MVP — сейчас</option><option value="q3-2026">Q3 2026</option><option value="q4-2026">Q4 2026</option><option value="q1-2027">Q1 2027</option><option value="backlog">Backlog</option></select></div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn btn-v" onclick="saveTask()">Создать</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB='https://pzpgvtsizjpdghqovcgr.supabase.co';
+const AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6cGd2dHNpempwZGdocW92Y2dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDQ1OTksImV4cCI6MjA4NzI4MDU5OX0.qOoinOMTiiJWW9gCKVeaEfF7hLp_uZmGqDlFzjoFTXQ';
+const H={'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json','Prefer':'return=representation'};
+let T=[],page='dashboard',cat=null,filt='all';
+
+function seed(){return[
+  // ════ BACKEND — DONE ════
+  {id:'bd1',title:'Pattern engine Phase 3 — query + intervention',desc:'query_pattern_histories(), format_pattern_card, compute_verdict. 10/10 тестов, 4/4 smoke. 62 события из 100 сделок.',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'bd2',title:'BehavioralEventStore — Phase 1 Data Foundation',desc:'behavioral_events + pre_trade_decisions таблицы. RLS. 9/9 тестов.',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'bd3',title:'Event Persistence Wiring — Phase 2',desc:'post-save wiring, pre-trade decision persist, close outcome linkage. 223 теста.',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'bd4',title:'Pattern engine в живом боте — Phase 4',desc:'pre-trade path вызывает query_pattern_histories(). Fallback к format_behavioral_block().',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'bd5',title:'pnl_pct fallback для no-SL паттернов',desc:'Revenge Trader: insufficient→active (loss_rate=0.83). update_outcome() использует pnl_pct когда r_result=None.',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'bd6',title:'Profile bundle — max_position_size_pct, новые event rules',desc:'trading_goal убран. 2 новых event: DAILY_LOSS_LIMIT_BREACH + SIZE_OVER_BASELINE. 6/6 тестов.',cat:'backend',phase:'post-mvp',prio:'medium',st:'done'},
+  {id:'bd7',title:'DexScreener API — замена CoinGecko',desc:'Все токены DEX/CEX без ключа. monitoring_service.py переключён.',cat:'backend',phase:'post-mvp',prio:'high',st:'done'},
+
+  // ════ BACKEND — ACTIVE SPRINT (сейчас за кулисами) ════
+  {id:'b1',title:'Напоминание 24ч — открытые сделки без SL или TP',desc:'Фоновый checker раз в час. Одно сообщение со списком пар + кнопки быстрого закрытия. chat_id сохранять в trades. reminder_24h_sent флаг.',cat:'backend',phase:'post-mvp',prio:'high',st:'in-progress'},
+  {id:'b2',title:'Drill-down по паттернам — конкретные сделки',desc:'Показать трейдеру какие именно сделки сформировали паттерн. Из pattern card → список trade cards.',cat:'backend',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'b3',title:'Retry парсера — автоповтор при fail',desc:'Если Groq вернул ошибку → retry × 2 с exponential backoff. Логировать.',cat:'backend',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'b4',title:'Cortex Score — спроектировать реальный алгоритм',desc:'Формула на основе pattern engine: loss_rate паттернов × recurrence × динамика. Убрать хардкод.',cat:'backend',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'b5',title:'PET Dashboard — Cortex сохранил тебе X',desc:'Главный retention hook. Требует: working pattern engine + накопленные outcome.',cat:'backend',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'b6',title:'Weekly pattern report v1',desc:'Топ-3 паттерна, динамика tilt, сравнение недель. Отправка по пятницам. Pro feature.',cat:'backend',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'b7',title:'Онбординг v2 — graceful partial profile',desc:'Убрать обязательный профиль как gate. Первая сделка уже данные.',cat:'backend',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'b8',title:'История сделок — заглушка',desc:'Экран со списком закрытых сделок. Сейчас минимум — потом доделать.',cat:'backend',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'b9',title:'Статистика — заглушка',desc:'Win rate, avg R, total PnL. Строить поверх behavioral_events + trades. Сейчас минимум.',cat:'backend',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'b10',title:'Post-factum behavioral output v1',desc:'Карточка после закрытия: факт, контекст, паттерн, корректирующее действие.',cat:'backend',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'b11',title:'Pre-trade как главный entrypoint',desc:'Трейдер скидывает план ДО входа → pattern-based оценка. После накопления данных.',cat:'backend',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'b12',title:'Confidence-to-size engine',desc:'Размер позиции на основе behavioral state.',cat:'backend',phase:'q3-2026',prio:'medium',st:'todo'},
+  {id:'b13',title:'Separate pre_trade_check_flow pipeline',desc:'Отдельный pipeline. Не смешивать с post-trade.',cat:'backend',phase:'q3-2026',prio:'medium',st:'todo'},
+  {id:'b14',title:'ML layer — cross-user pattern detection',desc:'После 5000+ trades. Не раньше.',cat:'backend',phase:'q1-2027',prio:'low',st:'todo'},
+  {id:'b15',title:'B2B behavioral analytics API',desc:'Агрегированные паттерны без PII для prop firms.',cat:'backend',phase:'q1-2027',prio:'medium',st:'todo'},
+  {id:'b16',title:'Repositories extraction from db.py',desc:'Архитектурная уборка. Только после стабилизации core.',cat:'backend',phase:'backlog',prio:'low',st:'todo'},
+
+  // ════ INFRA ════
+  {id:'i1',title:'Логи в файл — rotating logs на сервере',desc:'До деплоя. Без логов невозможно отлаживать production.',cat:'infra',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'i2',title:'Rate limiting — макс 10 скринов/60 сек на юзера',desc:'asyncio limiter. Защита от флуда.',cat:'infra',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'i3',title:'.env не в git — проверить .gitignore',desc:'До деплоя. Критично.',cat:'infra',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'i4',title:'Supabase daily backups включить',desc:'До первого реального пользователя. Settings → Database → Backups.',cat:'infra',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'i5',title:'VPS Hetzner CX22 — деплой бота',desc:'Ubuntu 22.04. systemd автоперезапуск. $5/мес. ПОСЛЕ полировки продукта.',cat:'infra',phase:'backlog',prio:'medium',st:'todo'},
+  {id:'i6',title:'UptimeRobot мониторинг + Telegram alert',desc:'После деплоя на VPS.',cat:'infra',phase:'backlog',prio:'low',st:'todo'},
+  {id:'i7',title:'Supabase Pro upgrade',desc:'При первом реальном пользователе. $25/мес.',cat:'infra',phase:'backlog',prio:'medium',st:'todo'},
+  {id:'i8',title:'Stripe / LemonSqueezy интеграция',desc:'При 200+ пользователях.',cat:'infra',phase:'q3-2026',prio:'medium',st:'todo'},
+  {id:'i9',title:'CCXT — биржевое API импорт сделок',desc:'Binance, Bybit, OKX. Next major feature. После стабилизации MVP.',cat:'infra',phase:'q4-2026',prio:'medium',st:'todo'},
+
+  // ════ UX — DONE в этом спринте ════
+  {id:'ud1',title:'Хардкод Cortex Score = 74 — убран',desc:'reports.py:102 исправлен. Реальный расчёт или "накапливается...".',cat:'ux',phase:'post-mvp',prio:'critical',st:'done'},
+  {id:'ud2',title:'Два сообщения после сохранения → одно',desc:'Карточка + discipline score объединены. Один Cortex Score.',cat:'ux',phase:'post-mvp',prio:'critical',st:'done'},
+  {id:'ud3',title:'Убрать "скинь скрин" после proceed',desc:'"✅ Зафиксировано. Удачи." — и всё.',cat:'ux',phase:'post-mvp',prio:'critical',st:'done'},
+  {id:'ud4',title:'Переименовать кнопки главного меню',desc:'Tilt Index · Мои паттерны · Cortex Pro. Реализовано.',cat:'ux',phase:'post-mvp',prio:'high',st:'done'},
+  {id:'ud5',title:'Violations evidence — доказательная база',desc:'"Revenge trade — 5 раз · avg −1.8R" вместо "несколько нарушений".',cat:'ux',phase:'post-mvp',prio:'high',st:'done'},
+
+  // ════ UX — АКТИВНЫЙ СПРИНТ ════
+  {id:'u1',title:'Tilt Index — emoji визуальный редизайн',desc:'🟢 Спокойно / 🟡 Осторожно / 🔴 Стоп / 🔥 Тильт-режим. Визуальный трейдер по состоянию.',cat:'ux',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'u2',title:'Профиль — полный редизайн страницы',desc:'Убрать лишние кнопки. Один путь к premium-индексам. Доказательная база везде.',cat:'ux',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'u3',title:'Cortex Pro — страница оффера',desc:'Красивое представление планов Core/Pro/Elite. Decoy effect. Апселл аргументы.',cat:'ux',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'u4',title:'Onboarding — редизайн флоу',desc:'Короче, конкретнее. Без обязательного профиля как gate.',cat:'ux',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'u5',title:'Настройки мониторинга уведомлений',desc:'Громко / тихо / только статистика. User preference.',cat:'ux',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'u6',title:'Web dashboard v1',desc:'После стабилизации Telegram MVP.',cat:'ux',phase:'q4-2026',prio:'medium',st:'todo'},
+
+  // ════ MONETIZATION ════
+  {id:'m1',title:'Cortex Core $19/мес — запустить',desc:'Behavioral предупреждения, pre-trade check, история 90 дней, до 10 сделок/день.',cat:'monetization',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'m2',title:'Cortex Pro $39/мес — запустить',desc:'Полная история, Weekly Report, PET Dashboard, unlimited сделок. Главный план.',cat:'monetization',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'m3',title:'Cortex Elite $99/мес — запустить',desc:'Export данных, API доступ, multi-account. Decoy effect для Pro.',cat:'monetization',phase:'q3-2026',prio:'medium',st:'todo'},
+  {id:'m4',title:'Триал 14 дней или 30 сделок',desc:'Что наступит позже. Полный Pro во время триала.',cat:'monetization',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'m5',title:'B2B пилот для prop firms',desc:'Поведенческий риск трейдеров. Первые контракты.',cat:'monetization',phase:'q1-2027',prio:'high',st:'todo'},
+
+  // ════ GROWTH ════
+  {id:'g1',title:'Ручной онбординг первых 20-50 трейдеров',desc:'После полировки продукта. Telegram чаты, личные DM. Цель: 30+ сделок от каждого.',cat:'growth',phase:'post-mvp',prio:'high',st:'todo'},
+  {id:'g2',title:'Shareable pattern cards',desc:'"Cortex показал мне этот паттерн" — для Crypto Twitter / X.',cat:'growth',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'g3',title:'PET dashboard скриншоты для соцсетей',desc:'"Cortex сохранил мне $X в этом месяце" — social proof asset.',cat:'growth',phase:'q3-2026',prio:'medium',st:'todo'},
+  {id:'g4',title:'Prop / funded trader сообщества',desc:'Целевая аудитория Phase 2 Growth.',cat:'growth',phase:'q3-2026',prio:'high',st:'todo'},
+  {id:'g5',title:'Реферальная программа',desc:'Extra Pro days за реферала.',cat:'growth',phase:'q4-2026',prio:'medium',st:'todo'},
+
+  // ════ BUGS — активные ════
+  {id:'bug1',title:'Parsing inconsistency — screenshot ingestion',desc:'Provider extraction variance at Layer 2. Non-blocking. Только инкрементальные фиксы от реальных пользователей.',cat:'bugs',phase:'backlog',prio:'medium',st:'partial'},
+  {id:'bug2',title:'Screenshot size_pct не распознаётся',desc:'Provider-dependent. Inference от equity работает когда margin_usdt доступен.',cat:'bugs',phase:'backlog',prio:'high',st:'partial'},
+  {id:'bug3',title:'SL/TP inversion в confirmation и fix flow',desc:'apply_tp_sl_semantic_contract — evidence field fix улучшил. Provider ambiguity на некоторых layouts.',cat:'bugs',phase:'backlog',prio:'high',st:'partial'},
+  {id:'bug4',title:'Risk/reward fallback когда SL отсутствует',desc:'liq_fallback существует и работает. Full 100%-risk fallback не реализован.',cat:'bugs',phase:'backlog',prio:'high',st:'partial'},
+  {id:'bug5',title:'Callback instability — bot handlers',desc:'FSM guard gap closed. Broader callback surface — ongoing observation.',cat:'bugs',phase:'backlog',prio:'high',st:'partial'},
+
+  // ════ TESTS ════
+  {id:'t1',title:'Tilt threshold calibration из реальных сессий',desc:'Нужны реальные данные для калибровки порогов.',cat:'tests',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'t2',title:'Parity validation: legacy vs pipeline 100+ events',desc:'FEATURE_POST_TRADE_PIPELINE_SHADOW включён. 100+ screenshot событий, mismatch rate зафиксирован.',cat:'tests',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'t3',title:'Real screenshot validation — correction dataset',desc:'Пополнять при каждой ошибке парсера от реальных пользователей.',cat:'tests',phase:'post-mvp',prio:'medium',st:'todo'},
+  {id:'t4',title:'reminder_service unit tests',desc:'trades с надёжным SL+TP → не в reminder. uncertain SL → в reminder. reminder_sent=True → не повторять.',cat:'tests',phase:'post-mvp',prio:'high',st:'todo'},
+];}
+
+const P={critical:0,high:1,medium:2,low:3};
+function sort(arr){return[...arr].sort((a,b)=>(P[a.prio]??2)-(P[b.prio]??2))}
+function pct(d,t){return t?Math.round(d/t*100):0}
+
+async function sbq(path,method='GET',body=null){
+  const r=await fetch(SB+'/rest/v1/'+path,{method,headers:H,body:body?JSON.stringify(body):null});
+  if(!r.ok)throw new Error(await r.text());
+  return method==='DELETE'?null:r.json();
+}
+
+function badges(){
+  ['backend','infra','ux','monetization','growth','bugs','tests'].forEach(c=>{
+    const n=T.filter(t=>t.cat===c&&t.st!=='done').length;
+    const el=document.getElementById('nb-'+c);
+    if(el)el.textContent=n>0?n:'✓';
+  });
+}
+
+function go(p,c=null){
+  page=p;cat=c;filt='all';
+  document.querySelectorAll('.nav-i').forEach(e=>e.classList.remove('on'));
+  const k=c?`tasks-${c}`:p;
+  const el=document.querySelector(`[data-k="${k}"]`);
+  if(el)el.classList.add('on');
+  const names={dashboard:'Dashboard',agents:'Агенты',roadmap:'Roadmap',bugs:'Баги',
+    backend:'Бэкенд',infra:'Инфра',ux:'UX / Дизайн',monetization:'Монетизация',growth:'Рост',tests:'Тесты'};
+  document.getElementById('ptitle').textContent=names[c||p]||p;
+  const R={dashboard:renderDash,agents:renderAgents,roadmap:renderRoadmap,bugs:renderBugs};
+  if(p==='tasks')renderTasks(c);
+  else if(R[p])R[p]();
+}
+
+// ── DASHBOARD ──
+function renderDash(){
+  const all=T.length,done=T.filter(t=>t.st==='done').length,open=all-done;
+  const crit=T.filter(t=>t.prio==='critical'&&t.st!=='done').length;
+  const p=pct(done,all);
+  const nowOpen=T.filter(t=>t.phase==='post-mvp'&&t.st!=='done').length;
+  const inProgress=T.filter(t=>t.st==='in-progress');
+  const top=sort(T.filter(t=>t.st!=='done'&&t.st!=='in-progress')).slice(0,6);
+
+  const nextTask = T.filter(t => t.st === 'in-progress')[0]
+    || T.filter(t => t.st === 'todo' && t.prio === 'critical')[0]
+    || T.filter(t => t.st === 'todo')[0];
+  const npColor = {critical:'var(--rose)',high:'var(--amber)',
+    medium:'var(--blue)',low:'var(--t3)'}[nextTask?.prio]||'var(--violet)';
+
+  inject(`
+  <div class="digest-hint">
+    <span style="font-size:16px">💬</span>
+    <span>Скажи <strong>"сделай дайджест"</strong> + итоги сессии → запишу в Notion и обновлю задачи здесь</span>
+  </div>
+
+  <div class="sprint-banner">
+    <span class="sp-ico">⚡</span>
+    <div>
+      <div class="sp-title">Активный спринт — за кулисами до деплоя</div>
+      <div class="sp-desc">Напоминание 24ч без SL/TP · Drill-down паттернов · Tilt Index редизайн · Профиль редизайн · Cortex Pro страница · Retry парсера · Логи · Rate limiting</div>
+    </div>
+  </div>
+
+  <div class="mc" style="--ac:${npColor};grid-column:1/-1;margin-bottom:6px">
+    <div class="mc-l" style="color:${npColor}">⚡ Следующий шаг</div>
+    <div class="mc-v" style="color:${npColor};font-size:20px;line-height:1.3;
+      font-family:var(--sans);font-weight:800;letter-spacing:-.02em">
+      ${nextTask?.title || '✓ Всё выполнено'}
+    </div>
+    ${nextTask ? `<div class="mc-s" style="margin-top:6px">
+      ${nextTask.cat} · ${nextTask.prio} · ${nextTask.phase}
+    </div>` : ''}
+    <div class="mc-glow" style="background:${npColor}"></div>
+  </div>
+
+  <div class="mgrid g4">
+    <div class="mc" style="--ac:var(--violet)">
+      <div class="mc-l">Прогресс проекта</div>
+      <div class="mc-v" style="color:var(--violet)">${p}%</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:${p}%;background:var(--violet)"></div></div>
+      <div class="mc-s">${done} выполнено · ${open} открыто</div>
+      <div class="mc-glow" style="background:var(--violet)"></div>
+    </div>
+    <div class="mc" style="--ac:var(--rose)">
+      <div class="mc-l">Критичных задач</div>
+      <div class="mc-v" style="color:var(--rose)">${crit}</div>
+      <div class="mc-s">${crit===0?'✓ все закрыты':'требуют внимания'}</div>
+      <div class="mc-glow" style="background:var(--rose)"></div>
+    </div>
+    <div class="mc" style="--ac:var(--green)">
+      <div class="mc-l">Тесты</div>
+      <div class="mc-v" style="color:var(--green)">240<span style="font-size:16px;color:var(--t3);font-weight:400">+</span></div>
+      <div class="mc-bar"><div class="mc-fill" style="width:99%;background:var(--green)"></div></div>
+      <div class="mc-s" style="color:var(--green)">4 pre-existing · не блокируют</div>
+      <div class="mc-glow" style="background:var(--green)"></div>
+    </div>
+    <div class="mc" style="--ac:var(--cyan)">
+      <div class="mc-l">Post-MVP открыто</div>
+      <div class="mc-v" style="color:var(--cyan)">${nowOpen}</div>
+      <div class="mc-s">Phase 4 ✓ · деплой после полировки</div>
+      <div class="mc-glow" style="background:var(--cyan)"></div>
+    </div>
+  </div>
+
+  <div class="mgrid g3">
+    <div class="mc" style="--ac:var(--violet)">
+      <div class="mc-l">North Star Metric</div>
+      <div class="mc-v" style="color:var(--violet);font-size:28px">PET</div>
+      <div class="mc-s">Prevented Emotional Trades<br>сделки которые трейдер не открыл</div>
+    </div>
+    <div class="mc" style="--ac:var(--amber)">
+      <div class="mc-l">Цель Q2 2026</div>
+      <div class="mc-v" style="color:var(--amber)">50</div>
+      <div class="mc-s">первых юзеров<br>30+ сделок каждый</div>
+    </div>
+    <div class="mc" style="--ac:var(--blue)">
+      <div class="mc-l">Target MRR · Q3 2026</div>
+      <div class="mc-v" style="color:var(--blue)">$7.8k</div>
+      <div class="mc-s">200 юзеров × $39 Pro<br>retention 60%+</div>
+    </div>
+  </div>
+
+  ${inProgress.length?`
+  <div class="sh"><div class="sh-l">В работе прямо сейчас</div><div class="sh-line"></div><div class="sh-n">${inProgress.length}</div></div>
+  <div class="tlist">${inProgress.map(t=>tcard(t)).join('')}</div>`:''}
+
+  <div class="sh"><div class="sh-l">Следующие приоритеты</div><div class="sh-line"></div><div class="sh-n">${top.length} задач</div></div>
+  <div class="pleg">
+    <div class="pleg-item"><div class="pleg-dot" style="background:var(--rose);box-shadow:0 0 5px var(--rglow)"></div>critical</div>
+    <div class="pleg-item"><div class="pleg-dot" style="background:var(--amber)"></div>high</div>
+    <div class="pleg-item"><div class="pleg-dot" style="background:var(--blue)"></div>medium</div>
+    <div class="pleg-item"><div class="pleg-dot" style="background:var(--ink5)"></div>low</div>
+    <span style="font-size:10px;font-family:var(--mono);color:var(--t3);margin-left:4px">· клик = смена статуса</span>
+  </div>
+  <div class="tlist">${top.map(t=>tcard(t)).join('')}</div>
+
+  <div class="sh" style="margin-top:24px">
+    <div class="sh-l">Последняя сессия</div>
+    <div class="sh-line"></div>
+    <div class="sh-n">03.04.2026</div>
+  </div>
+  <div style="background:var(--ink3);border-radius:12px;
+    padding:18px 20px;border:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <div style="font-size:9px;font-family:var(--mono);color:var(--t3);
+        text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Сделано</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7">
+        Reminder service (24ч)<br>
+        SQL migration: chat_id + reminder_24h_sent<br>
+        DexScreener — любой токен<br>
+        Cortex Score — реальный расчёт<br>
+        Одно сообщение после save<br>
+        Violations с доказательствами<br>
+        247 тестов зелёных
+      </div>
+    </div>
+    <div>
+      <div style="font-size:9px;font-family:var(--mono);color:var(--t3);
+        text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Решено</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7">
+        Tilt Index вместо Предикт<br>
+        Мои паттерны вместо Психоанализ<br>
+        Cortex Pro вместо Подписка<br>
+        Frozen constraints не нарушены<br>
+        parse_contract.py — не тронут
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <div style="font-size:9px;font-family:var(--mono);color:var(--violet);
+          text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">
+          Следующий приоритет
+        </div>
+        <div style="font-size:12px;color:var(--t1);font-weight:600">
+          Tilt Index визуальный редизайн
+        </div>
+      </div>
+    </div>
+  </div>
+  `);
+}
+
+// ── TASKS ──
+function renderTasks(c){
+  const all=T.filter(t=>t.cat===c);
+  const open=all.filter(t=>t.st!=='done');
+  const done=all.filter(t=>t.st==='done');
+  const crit=open.filter(t=>t.prio==='critical').length;
+  const p=pct(done.length,all.length);
+  const horizons = [
+    {id:'all', label:'Все'},
+    {id:'today', label:'Сегодня'},
+    {id:'week', label:'Эта неделя'},
+    {id:'later', label:'Потом'}
+  ];
+  let fil=filt==='all'?all:filt==='open'?open:filt==='today'?all.filter(t=>t.st==='in-progress'):filt==='week'?all.filter(t=>t.st==='todo'&&(t.prio==='critical'||t.prio==='high')):filt==='later'?all.filter(t=>t.st==='todo'&&(t.prio==='medium'||t.prio==='low')):all.filter(t=>t.st===filt);
+  fil=sort(fil);
+  inject(`
+  <div class="mgrid g3" style="margin-bottom:18px">
+    <div class="mc" style="--ac:var(--rose)"><div class="mc-l">Открыто</div><div class="mc-v" style="color:var(--rose)">${open.length}</div><div class="mc-s">${crit} критичных</div></div>
+    <div class="mc" style="--ac:var(--green)"><div class="mc-l">Выполнено</div><div class="mc-v" style="color:var(--green)">${done.length}</div><div class="mc-s">из ${all.length} всего</div></div>
+    <div class="mc" style="--ac:var(--violet)"><div class="mc-l">Прогресс</div><div class="mc-v" style="color:var(--violet)">${p}%</div><div class="mc-bar"><div class="mc-fill" style="width:${p}%;background:var(--violet)"></div></div></div>
+  </div>
+  <div class="fbar" style="margin-bottom:8px">
+    <span style="font-size:9px;font-family:var(--mono);color:var(--violet);margin-right:2px">ГОРИЗОНТ</span>
+    ${horizons.map(h=>`<button class="fchip${filt===h.id?' on':''}" onclick="sf('${h.id}','${c}')">${h.label}</button>`).join('')}
+  </div>
+  <div class="fbar">
+    <span style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-right:2px">FILTER</span>
+    ${['all','open','todo','in-progress','done','partial'].map(f=>`<button class="fchip${filt===f?' on':''}" onclick="sf('${f}','${c}')">${f}</button>`).join('')}
+    <span class="fc">${fil.length} задач</span>
+  </div>
+  <div class="tlist">${fil.length?fil.map(t=>tcard(t)).join(''):'<div class="empty">Нет задач по этому фильтру</div>'}</div>
+  `);
+}
+function sf(f,c){filt=f;renderTasks(c)}
+
+// ── ROADMAP (visual timeline) ──
+function renderRoadmap(){
+  const phases=[
+    {id:'post-mvp', name:'Post-MVP · За кулисами', per:'Q2 2026 · сейчас', col:'var(--violet)', pill:'ACTIVE', pb:'var(--vsoft)', pc:'var(--violet)', pbr:'rgba(139,92,246,.25)', active:true},
+    {id:'q3-2026',  name:'Монетизация + PMF Signal', per:'Q3 2026', col:'var(--amber)', pill:'NEXT', pb:'var(--asoft)', pc:'var(--amber)', pbr:'rgba(245,166,35,.25)', active:false},
+    {id:'q4-2026',  name:'Web Dashboard + Scale', per:'Q4 2026', col:'var(--blue)', pill:'PLANNED', pb:'var(--bsoft)', pc:'var(--blue)', pbr:'rgba(77,166,255,.25)', active:false},
+    {id:'q1-2027',  name:'B2B пилот · Prop Firms', per:'Q1 2027', col:'var(--cyan)', pill:'LATER', pb:'var(--csoft)', pc:'var(--cyan)', pbr:'rgba(6,214,214,.25)', active:false},
+    {id:'backlog',  name:'Backlog · Деплой + Инфра', per:'без срока', col:'var(--t3)', pill:'BACKLOG', pb:'var(--ink4)', pc:'var(--t3)', pbr:'var(--line)', active:false},
+  ];
+
+  const phaseNames = ['Phase 1','Phase 2','Phase 3','Phase 4','Phase 5'];
+  const phaseDone = phaseNames.filter(ph =>
+    T.filter(t => t.phase === ph).length > 0 &&
+    T.filter(t => t.phase === ph && t.st !== 'done').length === 0
+  ).length;
+  const phaseTotal = phaseNames.filter(ph =>
+    T.filter(t => t.phase === ph).length > 0
+  ).length;
+
+  const milestonesHTML = phases.map((ph,i)=>{
+    const pt=T.filter(t=>t.phase===ph.id);
+    const dn=pt.filter(t=>t.st==='done').length;
+    const inProg=pt.filter(t=>t.st==='in-progress').length;
+    const pctVal=pct(dn,pt.length);
+    const isLast=i===phases.length-1;
+    return`<div class="rm-phase">
+      <div class="rm-left">
+        <div class="rm-node${ph.active?' active':''}" style="background:${ph.active?ph.col:'var(--ink4)'};border-color:${ph.col}"></div>
+        ${!isLast?`<div class="rm-spine" style="background:linear-gradient(to bottom,${ph.col}40,var(--line))"></div>`:''}
+      </div>
+      <div class="rm-right">
+        <div class="rm-card">
+          <div class="rm-card-h" onclick="trm('${ph.id}')">
+            <div class="rm-ph-name">${ph.name}</div>
+            <div class="rm-ph-per">${ph.per}</div>
+            ${inProg?`<span style="font-size:9px;font-family:var(--mono);font-weight:700;padding:2px 8px;border-radius:20px;background:var(--csoft);color:var(--cyan);border:1px solid rgba(6,214,214,.2);margin-right:4px">${inProg} в работе</span>`:''}
+            <div class="rm-pill" style="background:${ph.pb};color:${ph.pc};border:1px solid ${ph.pbr}">${ph.pill}</div>
+            <div class="rm-prog" style="color:${ph.col};min-width:48px;text-align:right">${dn}/${pt.length}</div>
+            <span class="rm-ch${ph.active?' o':''}" id="rch-${ph.id}">▼</span>
+          </div>
+          <div class="rm-bar-wrap"><div class="rm-bar-fill" style="width:${pctVal}%;background:${ph.col}"></div></div>
+          <div class="rm-body${ph.active?' o':''}" id="rb-${ph.id}" style="margin-top:8px">
+            <div class="tlist" style="margin:10px 0 0">
+              ${pt.length?sort(pt).map(t=>tcard(t)).join(''):'<div class="empty">Нет задач</div>'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  inject(`
+  <div class="sh" style="margin-bottom:20px">
+    <div class="sh-l">Визуальный roadmap</div>
+    <div class="sh-line"></div>
+    <span style="font-size:9.5px;font-family:var(--mono);color:var(--t3)">клик = раскрыть фазу</span>
+  </div>
+  <div style="background:var(--ink3);border-radius:10px;
+    padding:14px 18px;margin-bottom:16px;border:1px solid var(--line)">
+    <div style="display:flex;justify-content:space-between;
+      font-size:11px;color:var(--t3);font-family:var(--mono);margin-bottom:8px">
+      <span>ПРОГРЕСС ПО ФАЗАМ</span>
+      <span style="color:var(--violet)">${phaseDone} из ${phaseTotal} завершено</span>
+    </div>
+    <div style="height:4px;background:var(--ink5);border-radius:2px;overflow:hidden">
+      <div style="height:100%;width:${phaseTotal?Math.round(phaseDone/phaseTotal*100):0}%;
+        background:var(--violet);border-radius:2px;
+        box-shadow:0 0 8px var(--vglow);transition:width .6s"></div>
+    </div>
+  </div>
+
+  <div class="rm-wrap">
+    <div class="rm-timeline">${milestonesHTML}</div>
+  </div>
+  `);
+}
+function trm(id){
+  const b=document.getElementById('rb-'+id),c=document.getElementById('rch-'+id);
+  if(!b)return;const o=b.classList.toggle('o');if(c){c.textContent=o?'▲':'▼';c.classList.toggle('o',o);}
+}
+
+// ── BUGS ──
+function renderBugs(){
+  const bugs=T.filter(t=>t.cat==='bugs');
+  const open=sort(bugs.filter(b=>b.st!=='done'));
+  const fixed=bugs.filter(b=>b.st==='done');
+  inject(`
+  <div class="mgrid g3" style="margin-bottom:18px">
+    <div class="mc" style="--ac:var(--rose)"><div class="mc-l">Активных</div><div class="mc-v" style="color:var(--rose)">${open.length}</div><div class="mc-s">${open.filter(b=>b.prio==='critical').length} критичных</div></div>
+    <div class="mc" style="--ac:var(--amber)"><div class="mc-l">Partial / WIP</div><div class="mc-v" style="color:var(--amber)">${open.filter(b=>b.st==='partial').length}</div><div class="mc-s">частично улучшено</div></div>
+    <div class="mc" style="--ac:var(--green)"><div class="mc-l">Исправлено</div><div class="mc-v" style="color:var(--green)">${fixed.length}</div><div class="mc-s">всего закрыто</div></div>
+  </div>
+  <div class="sh"><div class="sh-l">Активные баги</div><div class="sh-line"></div></div>
+  <div class="tlist">${open.map(t=>tcard(t)).join('')}</div>
+  ${fixed.length?`<div class="sh" style="margin-top:6px"><div class="sh-l">Исправлено</div><div class="sh-line"></div></div><div class="tlist">${fixed.map(t=>tcard(t)).join('')}</div>`:''}
+  `);
+}
+
+// ── TASK CARD ──
+function tcard(t){
+  const pc={critical:'p-c',high:'p-h',medium:'p-m',low:'p-l'}[t.prio]||'p-l';
+  const cc={done:'done',partial:'partial','in-progress':'wip'}[t.st]||'';
+  const ci={done:'✓',partial:'~','in-progress':'→'}[t.st]||'';
+  const stcls={done:'tg2',partial:'ta','in-progress':'tc',todo:'tg'}[t.st]||'tg';
+  const phn={'post-mvp':'post-mvp','q3-2026':'Q3 2026','q4-2026':'Q4 2026','q1-2027':'Q1 2027','backlog':'backlog'}[t.phase]||t.phase||'';
+  const isDone=t.st==='done';
+  return`<div class="task${isDone?' tdone':''}" onclick="cycle('${t.id}')">
+    <div class="pbar ${pc}"></div>
+    <div class="chk ${cc}">${ci}</div>
+    <div class="tb">
+      <div class="tt${isDone?' s':''}">${t.title}</div>
+      ${t.desc?`<div class="td">${t.desc}</div>`:''}
+      <div class="tags">
+        <span class="tag ${stcls}">${t.st}</span>
+        <span class="tag tg">${t.prio}</span>
+        ${phn?`<span class="tag tg">${phn}</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── AGENTS ──
+function renderAgents(){
+  const ag=[
+    {name:'Strategic HQ',role:'Продуктовые решения + Execution Driver',ico:'◈',col:'var(--violet)',bg:'var(--vsoft)',st:'ACTIVE',
+     miss:'Удерживать продукт в векторе Behavioral Pattern Detection Engine. Давать чёткие задания Builder с acceptance criteria. Резать scope creep.',
+     ok:'Обновление execution board, приоритизация фаз, scope бандлов, prompt для Builder',no:'Написание кода, изменение реализационных решений без Builder'},
+    {name:'Builder (Claude Code)',role:'Технический исполнитель',ico:'⚙',col:'var(--green)',bg:'var(--gsoft)',st:'ACTIVE',
+     miss:'Реализовывать bundles строго в рамках scope. Не расширять. Не рефакторить за пределами задания.',
+     ok:'Код в пределах бандла, unit тесты, баги если мешают текущему бандлу',no:'Big-bang refactor, смешивание pre/post-trade логики, изменение frozen constraints'},
+    {name:'Product Architect',role:'Архитектурная целостность',ico:'▣',col:'var(--blue)',bg:'var(--bsoft)',st:'STANDBY',
+     miss:'Предотвращать ownership drift. DB schema decisions. Интерфейсы новых сервисов.',
+     ok:'Новые сервисы, ownership rules, DB schema, архитектурный code review',no:'Изменение ownership rules без Strategic HQ'},
+    {name:'Behavioral Engine Designer',role:'Behavioral логика системы',ico:'◉',col:'var(--cyan)',bg:'var(--csoft)',st:'STANDBY',
+     miss:'Развивать behavioral logic: facts, events, patterns, interventions. Только deterministic logic. Без ML до 5000+ trades.',
+     ok:'services/behavioral_*.py, event codes, pattern query, intervention cards, graceful degradation',no:'DB schema без Architect, parse pipeline, ML до 5000+ trades'},
+    {name:'QA / Contract Guardian',role:'Защита контрактов от регрессий',ico:'▲',col:'var(--amber)',bg:'var(--asoft)',st:'STANDBY',
+     miss:'Защищать контракты при каждом изменении. Один owner — одно правило. Side-effect separation.',
+     ok:'Написание тестов, idempotency guards, ownership verification, regression report',no:'Изменение production кода, acceptance criteria без согласования'},
+    {name:'Notion Secretary',role:'Дайджест & документация',ico:'◎',col:'var(--rose)',bg:'var(--rsoft)',st:'ACTIVE',
+     miss:'Фиксировать итоги каждой сессии. Обновлять HQ app. Parking Lot — идеи которые нельзя потерять.',
+     ok:'Daily Digest, INBOX, DECISIONS, ACTIONS, BUGS, HYPOTHESES, PARKING LOT',no:'Изменение кода, архитектурные решения'},
+  ];
+  inject(`
+  <div class="sh"><div class="sh-l">Команда агентов</div><div class="sh-line"></div><div class="sh-n">${ag.length} ролей</div></div>
+  <div class="ag-grid">
+    ${ag.map(a=>`<div class="ag-card">
+      <div class="ag-glow" style="background:${a.col}"></div>
+      <div class="ag-top">
+        <div class="ag-av" style="background:${a.bg};color:${a.col}">${a.ico}</div>
+        <div><div class="ag-name">${a.name}</div><div class="ag-role">${a.role}</div></div>
+      </div>
+      <div class="ag-status" style="background:${a.st==='ACTIVE'?'var(--gsoft)':a.st==='STANDBY'?'var(--ink4)':a.bg};color:${a.st==='ACTIVE'?'var(--green)':a.st==='STANDBY'?'var(--t3)':a.st==='DONE'?'var(--violet)':a.col};border:1px solid ${a.st==='ACTIVE'?'rgba(16,240,140,.2)':a.st==='STANDBY'?'var(--line2)':a.col+'25'}">${a.st}</div>
+      <div class="ag-miss">${a.miss}</div>
+      <div class="ag-rules">
+        <div class="ag-rule"><span class="rl rl-ok">✓ CAN</span><span>${a.ok}</span></div>
+        <div class="ag-rule"><span class="rl rl-no">✗ CANNOT</span><span>${a.no}</span></div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="sh" style="margin-top:4px"><div class="sh-l">Workflow · как работать с системой</div><div class="sh-line"></div></div>
+  <div class="tlist">
+    ${[
+      ['1','Открываешь HQ → видишь "В работе" + следующие приоритеты','high'],
+      ['2','Рабочая сессия → кодишь / принимаешь решения с Builder','medium'],
+      ['3','В конце: "сделай дайджест" → Secretary пишет в Notion + обновляет HQ','high'],
+      ['4','Даёшь задание нужному агенту по его scope','medium'],
+      ['5','Strategic HQ резает выход за рамки. Builder только в scope бандла.','high'],
+    ].map(([n,t,p])=>`<div class="task">
+      <div class="pbar p-${p==='high'?'h':'m'}"></div>
+      <div class="chk" style="background:var(--vsoft);color:var(--violet);border-color:var(--violet);font-size:11px;font-weight:800">${n}</div>
+      <div class="tb"><div class="tt">${t}</div></div>
+    </div>`).join('')}
+  </div>
+  `);
+}
+
+// ── CYCLE ──
+async function cycle(id){
+  const t=T.find(x=>x.id===id);if(!t)return;
+  const nx={todo:'in-progress','in-progress':'done',done:'todo',partial:'done'}[t.st]||'done';
+  t.st=nx;
+  try{
+    const uid=String(id);
+    if(uid.length===36)
+      await sbq(`roadmap_tasks?id=eq.${id}`,'PATCH',{status:nx});
+  }catch(e){}
+  badges();
+  toast(`${nx==='done'?'✓':nx==='in-progress'?'→':'↺'} ${t.title.slice(0,42)}`);
+  const R={dashboard:renderDash,agents:renderAgents,roadmap:renderRoadmap,bugs:renderBugs};
+  if(page==='tasks')renderTasks(cat);else if(R[page])R[page]();
+}
+
+// ── SEARCH ──
+function onSearch(v){
+  const d=document.getElementById('sdrop');
+  if(!v.trim()){d.classList.remove('open');return}
+  const res=T.filter(t=>t.title.toLowerCase().includes(v.toLowerCase())||(t.desc&&t.desc.toLowerCase().includes(v.toLowerCase()))).slice(0,7);
+  const bugRes=T.filter(t=>t.cat==='bugs'&&(t.title.toLowerCase().includes(v.toLowerCase())||(t.desc&&t.desc.toLowerCase().includes(v.toLowerCase())))).slice(0,3);
+  const allRes=[...res.filter(t=>t.cat!=='bugs'),...bugRes].slice(0,7);
+  const pc={critical:'var(--rose)',high:'var(--amber)',medium:'var(--blue)',low:'var(--t3)'};
+  if(!allRes.length){d.innerHTML='<div class="sd-row"><div class="sd-t" style="color:var(--t3)">Не найдено</div></div>';d.classList.add('open');return}
+  d.innerHTML=allRes.map(t=>`<div class="sd-row" onclick="jump('${t.id}','${t.cat}')">
+    <div class="sd-pbar" style="background:${pc[t.prio]||'var(--t3)'}"></div>
+    <div><div class="sd-t">${t.cat==='bugs'?'<span style="color:var(--rose);font-family:var(--mono);font-size:9px;font-weight:700;margin-right:6px">[БАГ]</span>':''}${t.title}</div><div class="sd-m">${t.cat} · ${t.prio} · ${t.st}</div></div>
+  </div>`).join('');
+  d.classList.add('open');
+}
+function closeSearch(){document.getElementById('sdrop').classList.remove('open')}
+function jump(id,c){closeSearch();document.getElementById('sinput').value='';go('tasks',c)}
+
+// ── ADD ──
+function openModal(){if(cat)document.getElementById('f-c').value=cat;document.getElementById('overlay').classList.add('open');setTimeout(()=>document.getElementById('f-t').focus(),100)}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+async function saveTask(){
+  const title=document.getElementById('f-t').value.trim();if(!title){toast('Введи название');return}
+  const t={title,desc:document.getElementById('f-d').value.trim(),cat:document.getElementById('f-c').value,prio:document.getElementById('f-p').value,phase:document.getElementById('f-ph').value,st:'todo'};
+  try{const r=await sbq('roadmap_tasks','POST',{title:t.title,description:t.desc,category:t.cat,priority:t.prio,phase:t.phase,status:'todo'});T.unshift({...t,id:Array.isArray(r)?r[0].id:'new-'+Date.now()})}
+  catch(e){T.unshift({...t,id:'loc-'+Date.now()})}
+  closeModal();document.getElementById('f-t').value='';document.getElementById('f-d').value='';
+  badges();go(page,cat);toast('✓ Задача создана');
+}
+
+// ── UTILS ──
+function inject(h){document.getElementById('content').innerHTML=h}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)}
+function setConn(ok,msg){
+  document.getElementById('cdot').className='conn-d'+(ok?' live':' err');
+  document.getElementById('clbl').textContent=ok?'connected · supabase':msg||'offline · local';
+}
+
+// ── INIT ──
+async function init(){
+  try{
+    const data=await sbq('roadmap_tasks?order=created_at.desc');
+    T=data&&data.length>0?data.map(r=>({...r,cat:r.category,prio:r.priority,st:r.status,desc:r.description})):seed();
+    setConn(data&&data.length>0);
+    if(!data||!data.length)setConn(false,'local · seed data');
+  }catch(e){T=seed();setConn(false,'offline · local')}
+  badges();go('dashboard');
+}
+
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('sinput').focus()}
+  if(e.key==='Escape'){closeModal();closeSearch()}
+});
+
+init();
+</script>
+</body>
+</html>
